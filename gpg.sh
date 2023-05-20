@@ -1,19 +1,5 @@
 #!/bin/bash
-if which gnupg >/dev/null; then
-    echo "Installed"
-else
-    echo "Not installed"
-
-
-fi
-
-if which git >/dev/null
-then
-    echo "Git is Installed"
-else
- echo "Git is not install"
-
-fi
+echo "install git and gnpug before starting"
 
 
 output=$(gpg --list-secret-keys 2>&1)
@@ -38,7 +24,7 @@ if [[ $output == *"sec "* ]]; then
       git config --global user.signingkey "$key"
       git config --global commit.gpgsign true
       git config --global tag.gpgsign true
-      echo "Type where gpg in cmd you will get the gpg key location as the output. Run this command git config --global gpg.program YOUR-PR"
+      
 
     elif [ "$input" -eq 2 ]; then
       echo "Generating a new key..."
@@ -57,11 +43,11 @@ if [[ $output == *"sec "* ]]; then
       git config --global user.signingkey "$key"
       git config --global commit.gpgsign true
       git config --global tag.gpgsign true
-      echo "Type where gpg in cmd you will get the gpg key location as the output. Run this command git config --global gpg.program YOUR-GP"
+     
 
     elif [ "$input" -eq 3 ]; then
         gpg --list-secret-keys --keyid-format=long
-        echo "Enter the key ID of the key to be deleted"
+        echo "sec   rsa4096/YOUR-KEY-ID 2020-06-18 [SC] you will see a line in this format kindly enter YOUR-KEY-ID"
         read -r key_ID
         gpg --delete-secret-key "$key_ID"
         gpg --delete-key "$key_ID"
@@ -89,7 +75,7 @@ read -r key
       git config --global user.signingkey "$key"
       git config --global commit.gpgsign true
       git config --global tag.gpgsign true
-      echo "Type where gpg in cmd you will get the gpg key location as the output. Run this command git config --global gpg.program YOUR-GP"
+      
 
   fi
 fi
