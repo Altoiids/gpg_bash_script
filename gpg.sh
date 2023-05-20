@@ -20,7 +20,13 @@ sign_key() {
       git config --global user.signingkey "$key"
       git config --global commit.gpgsign true
       git config --global tag.gpgsign true
-}
+}read -r cont
+      if [ "$cont" -eq 1 ]; then
+        sign_key
+      else
+        exit 0
+      fi
+
 
 new_key() {
 generate_key
@@ -51,7 +57,13 @@ if [[ $output == *"sec "* ]]; then
       reuse_key
 
       echo "do you want to use this key for signing? if yes press 1 else press 0"
-      sign_key
+      read -r cont
+      if [ "$cont" -eq 1 ]; then
+        sign_key
+      else
+        exit 0
+      fi
+      
       
 
     elif [ "$input" -eq 2 ]; then
