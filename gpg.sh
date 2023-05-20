@@ -1,7 +1,46 @@
 #!/bin/bash
 echo "install git and gnpug before starting"
 
+generate_key() {
+      gpg --full-generate-key
+      gpg --list-secret-keys --keyid-format LONG
+      read -rp "sec   rsa4096/YOUR-KEY-ID 2020-06-18 [SC] you will see a line in this format kindly enter YOUR-KEY-ID: " key
 
+      gpg --armor --export $key
+      echo "copy from begin to end of public key block and paste it in the new gpg key in your github account"
+
+}
+
+sign_key() {
+      read -rp "enter your username FOR-SETTING-GLOBAL-VARIABLES: " name
+      
+      read -rp "enter your emailid FOR-SETTING-GLOBAL-VARIABLES: " email
+      git config --global user.name "$name"
+      git config --global user.email "$email"
+      git config --global user.signingkey "$key"
+      git config --global commit.gpgsign true
+      git config --global tag.gpgsign true
+}
+
+new_key() {
+generate_key
+echo "do you want to use this key for signing? if yes press 1 else press 0"
+      read -r cont
+      if [ "$cont" -eq 1 ]; then
+        sign_key
+      else
+        exit 0
+      fi 
+}
+
+reuse_key() {
+gpg --list-secret-keys --keyid-format LONG
+      
+      read -rp "sec   rsa4096/YOUR-KEY-ID 2020-06-18 [SC] you will see a line in this format kindly enter YOUR-KEY-ID: " input
+      key = $input
+      gpg --armor --export $key
+      echo "copy from begin to end of public key block and paste it in the new gpg key in your github account"
+}
 output=$(gpg --list-secret-keys 2>&1)
 
 if [[ $output == *"sec "* ]]; then
@@ -10,39 +49,15 @@ if [[ $output == *"sec "* ]]; then
     read -r input
     if [ "$input" -eq 1 ]; then
 
-      gpg --list-secret-keys --keyid-format LONG
-      echo "sec   rsa4096/YOUR-KEY-ID 2020-06-18 [SC] you will see a line in this format kindly enter YOUR-KEY-ID"
-      read -r key
-      gpg --armor --export $key
-      echo "copy from begin to end of public key block and paste it in the new gpg key in your github account"
-      echo "enter your username"
-      read -r name
-      echo "enter your emailid"
-      read -r email
-      git config --global user.name "$name"
-      git config --global user.email "$email"
-      git config --global user.signingkey "$key"
-      git config --global commit.gpgsign true
-      git config --global tag.gpgsign true
+      reuse_key
+
+      echo "do you want to use this key for signing? if yes press 1 else press 0"
+      sign_key
       
 
     elif [ "$input" -eq 2 ]; then
       echo "Generating a new key..."
-      gpg --full-generate-key
-      gpg --list-secret-keys --keyid-format LONG
-      echo "sec   rsa4096/YOUR-KEY-ID 2020-06-18 [SC] you will see a line in this format kindly enter YOUR-KEY-ID"
-      read -r key
-      gpg --armor --export $key
-      echo "copy from begin to end of public key block and paste it in the new gpg key in your github account"
-      echo "enter your username"
-      read -r name
-      echo "enter your emailid"
-      read -r email
-      git config --global user.name "$name"
-      git config --global user.email "$email"
-      git config --global user.signingkey "$key"
-      git config --global commit.gpgsign true
-      git config --global tag.gpgsign true
+      new_key
      
 
     elif [ "$input" -eq 3 ]; then
@@ -57,25 +72,8 @@ if [[ $output == *"sec "* ]]; then
 
 else
   echo "No GPG keys found. Generating ..."
-  gpg --full-generate-key
-  gpg --list-secret-keys --keyid-format LONG
-  echo "sec   rsa4096/YOUR-KEY-ID 2020-06-18 [SC] you will see a line in this format kindly enter YOUR-KEY-ID if you want to use it for sig"  
-read -r key
-  if [ "$key" -eq 0 ]; then
-        exit 0
-  else
-      gpg --armor --export $key
-      echo "copy from begin to end of public key block and paste it in the new gpg key in your github account"
-      echo "enter your username"
-      read -r name
-      echo "enter your emailid"
-      read -r email
-      git config --global user.name "$name"
-      git config --global user.email "$email"
-      git config --global user.signingkey "$key"
-      git config --global commit.gpgsign true
-      git config --global tag.gpgsign true
+  new_key
       
 
-  fi
+  
 fi
