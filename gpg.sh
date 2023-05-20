@@ -4,9 +4,9 @@ echo "install git and gnpug before starting"
 generate_key() {
       gpg --full-generate-key
       gpg --list-secret-keys --keyid-format LONG
-      read -rp "sec   rsa4096/YOUR-KEY-ID 2020-06-18 [SC] you will see a line in this format kindly enter YOUR-KEY-ID: " key
-
-      gpg --armor --export $key
+      key_id=$(gpg --list-keys --keyid-format LONG | grep '/' | tail -n 1 | awk -F'/' '{print $2}' | awk -F' ' '{print $1}')
+      echo "$key_id"
+      gpg --armor --export "$key_id"
       echo "copy from begin to end of public key block and paste it in the new gpg key in your github account"
 
 }
@@ -36,9 +36,8 @@ echo "do you want to use this key for signing? if yes press 1 else press 0"
 reuse_key() {
 gpg --list-secret-keys --keyid-format LONG
       
-      read -rp "sec   rsa4096/YOUR-KEY-ID 2020-06-18 [SC] you will see a line in this format kindly enter YOUR-KEY-ID: " input
-      key = $input
-      gpg --armor --export $key
+      read -rp "sec   rsa4096/YOUR-KEY-ID 2020-06-18 [SC] you will see a line in this format kindly enter YOUR-KEY-ID: " keyreuse
+      gpg --armor --export "$keyreuse"
       echo "copy from begin to end of public key block and paste it in the new gpg key in your github account"
 }
 output=$(gpg --list-secret-keys 2>&1)
